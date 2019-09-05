@@ -12,7 +12,12 @@ var Usuario = require('../models/usuario');
 
 //obtener usuarios
 app.get('/', (req,res,next)=>{//get recibe 3 parametros
+    var desde = req.query.desde || 0;
+    desde = Number(desde);
+
     Usuario.find({}, 'nombre email img role')// busca todos los campos y solo mostrame estos campos
+            .skip(desde) //salta el nro de registros especificados
+            .limit(5)
             .exec(
                 (err,usuarios)=>{
                     if (err){
@@ -22,11 +27,16 @@ app.get('/', (req,res,next)=>{//get recibe 3 parametros
                                 errors: err
                         })
                     }
-                
-                    res.status(200).json({
-                        ok:true,
-                        mensaje:usuarios            
+
+                    Usuario.count({},(err,conteo)=>{
+                        res.status(200).json({
+                            ok:true,
+                            mensaje:usuarios,
+                            total:conteo
+                        })
+
                     })
+                
                 }
 
             )
